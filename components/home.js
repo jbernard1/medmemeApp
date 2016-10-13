@@ -12,7 +12,8 @@ import {
   Image,
   ScrollView,
   TouchableHighlight,
-  ToastAndroid
+  ToastAndroid,
+  ToolbarAndroid
 } from 'react-native';
 import * as d3 from 'd3'
 
@@ -153,6 +154,9 @@ class Home extends Component {
     return(
       <View style={styles.container}>
         <View style={styles.topHalf}>
+          <ToolbarAndroid style={styles.toolbar}
+          title={this.props.title}
+          titleColor={'#FFFFFF'}/>
           <Logo />
           <NewsSlider />
         </View>
