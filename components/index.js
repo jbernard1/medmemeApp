@@ -1,5 +1,7 @@
-import Home from './home.js'
+import Home from './home'
+import Scicom from './scicom'
 
 export {
-  Home
+  Home,
+  Scicom
 }

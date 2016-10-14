@@ -12,14 +12,10 @@ import {
   Image,
   ScrollView,
   TouchableHighlight,
-  ToastAndroid,
   ToolbarAndroid
 } from 'react-native';
+import { Toast } from './helpers'
 import * as d3 from 'd3'
-
-let toast = function(message, type=ToastAndroid.SHORT){
-  ToastAndroid.show(message, type)
-}
 
 class Logo extends Component {
   constructor(props){
@@ -98,22 +94,24 @@ class Plugin extends Component {
     return img;
   }
   _onPressButton(){
-    toast(`Loading ${this.state.name}`)
+    this.props.navigator.push({
+      id: this.state.name
+    })
   }
   render(){
     return (
-      <TouchableHighlight onPress={this._onPressButton.bind(this)}>
-        <View style={styles.plugin} id={this.state.id}>
-          <View style={styles.pluginIconContainer}>
-              <Image resizeMode='contain' style={styles.pluginIcon} source={this.state.img}/>
+      <View style={styles.plugin}>
+        <TouchableHighlight  style={styles.pluginIconContainer} onPress={this._onPressButton.bind(this)}>
+          <View id={this.state.id}>
+            <Image resizeMode='contain' style={styles.pluginIcon} source={this.state.img}/>
           </View>
-          <View style={styles.pluginLabelContainer}>
-            <Text numberOfLines={1}  style={styles.pluginLabel}>
-              {this.state.name}
-            </Text>
-          </View>
+        </TouchableHighlight>
+        <View style={styles.pluginLabelContainer}>
+          <Text numberOfLines={1}  style={styles.pluginLabel}>
+            {this.state.name}
+          </Text>
         </View>
-      </TouchableHighlight>
+      </View>
     )
   }
 }
@@ -126,23 +124,47 @@ class PluginList extends Component {
     }
   }
   getList(){
-    return [{id: 1, name: 'Scicom', img: ''}, {id: 2, name: 'Insightmeme', img: ''}, {id: 4, name: 'Profilememe', img: ''},
-            {id: 1, name: 'Impactmeme', img: ''}, {id: 2, name: 'Conferencememe', img: ''}, {id: 4, name: 'Tracker', img: ''}]
+    return [{id: 1, name: 'Scicom', img: ''}, {id: 2, name: 'Insightmeme', img: ''}, {id: 3, name: 'Profilememe', img: ''},
+            {id: 4, name: 'Impactmeme', img: ''}, {id: 5, name: 'Conferencememe', img: ''}, {id: 6, name: 'Tracker', img: ''}]
+  }
+  renderPluginList(){
+    var plugins = this.getList();
+    var rows = [];
+    var navigator = this.props.navigator;
+
+    var pluginCollection = plugins.map((plugin, index) => {
+      return(
+        <Plugin key={index} navigator={navigator} id={plugin.id} name={plugin.name}/>
+      )
+    });
+
+    var count = 0;
+    var cellCount = 3;
+    var rowCount = (pluginCollection.length / cellCount);
+    while(rowCount > count){
+      var cells = pluginCollection.slice(start, cellCount);
+      console.log("Row Cells", cells)
+      rows.push(cells);
+      count++;
+    };
+
+    console.log(rows, "Row Count", rows.length);
+
+    return rows.map((plugins, index) => {
+      return(
+        <View key={index} style={styles.row}>
+          {plugins}
+        </View>
+      )
+    });
+
+
   }
   render(){
     return(
       <View style={styles.pluginList}>
         <ScrollView>
-          <View style={styles.row}>
-            <Plugin id={this.state.plugins[0].id} name={this.state.plugins[0].name}/>
-            <Plugin id={this.state.plugins[1].id} name={this.state.plugins[1].name}/>
-            <Plugin id={this.state.plugins[2].id} name={this.state.plugins[2].name}/>
-          </View>
-          <View style={styles.row}>
-            <Plugin id={this.state.plugins[3].id} name={this.state.plugins[3].name}/>
-            <Plugin id={this.state.plugins[4].id} name={this.state.plugins[4].name}/>
-            <Plugin id={this.state.plugins[5].id} name={this.state.plugins[5].name}/>
-          </View>
+          {this.renderPluginList()}
         </ScrollView>
       </View>
     )
@@ -161,7 +183,7 @@ class Home extends Component {
           <NewsSlider />
         </View>
         <View style={styles.lowerHalf}>
-          <PluginList />
+          <PluginList navigator={this.props.navigator}/>
         </View>
       </View>
     )
@@ -171,7 +193,8 @@ class Home extends Component {
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20
+    paddingTop: 20,
+    backgroundColor: 'whitesmoke'
   },
   title: {
     fontWeight: 'bold',

@@ -3,11 +3,16 @@ import {
   StyleSheet,
   ToastAndroid,
   Navigator,
-  BackAndroid
+  BackAndroid,
+  RCTDeviceEventEmitter
 } from 'react-native';
-import {
-  Home
-} from '../components'
+import * as components from '../components';
+
+var {
+  Home,
+  Scicom
+} = components
+var componentList = Object.keys(components);
 
 let listen;
 let backCounter = 0;
@@ -39,58 +44,43 @@ var NavigationBarRouteMapper = {
 
 var _navigator;
 
-// Handles when android backbuton was clicked.
-BackAndroid.addEventListener('hardwareBackPress', ()=>{
-  var count = 0;
-  // If we were listening already, stop.
-  if(listen) clearInterval(listen);
-  // Listen for 5 seconds
-  listen = setInterval(function(){
-    // If we reached 5 seconds
-    if(count == 5){
-      // Set backCounter to zero
-      backCounter = 0;
-      // Set seconds count to zero
-      count = 0;
-      // Stop this interval
-      clearInterval(listen);
-    }else{
-      count++;
-    }
-  }, 1000)
-
-  if(backCounter == 0){
-    backCounter = 1;
-    toast('Back button was clicked.');
-    toast('Press again to quit medmeme app.', ToastAndroid.LONG)
-    return true;
-  }
-
-  if(!_navigator){
-    return false;
-  }
-
-  if(_navigator.getCurrentRoutes().length === 1){
-    return false;
+BackAndroid.addEventListener('hardwareBackPress', () => {
+  if (_navigator.getCurrentRoutes().length === 1  ) {
+     return false;
   }
   _navigator.pop();
   return true;
 });
 
+
 class App extends Component {
   render(){
     return(
       <Navigator
-        initialRoute={{id: 'home'}}
+        initialRoute={{id: 'Home'}}
         renderScene={this.navigatorRenderScene}
       />
     )
   }
   navigatorRenderScene(route, navigator){
-    switch (route.id) {
+    var id = route.id;
+    console.log("Components", Object.keys(components));
+    if(componentList.indexOf(id) == -1){
+      toast(`${id} is currently not available`, gravity=ToastAndroid.CENTER);
+    }else if(id != 'Home'){
+      toast(`Loading ${id} plugin`);
+    }
+
+    _navigator = navigator;
+    switch (route.id.toLowerCase()) {
       case 'home':
         return(
           <Home navigator={navigator} />
+        )
+        break;
+      case 'scicom':
+        return(
+          <Scicom navigator={navigator} />
         )
         break;
       default:
